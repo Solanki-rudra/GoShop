@@ -1,24 +1,20 @@
 import { connectToDatabase } from "@/lib/db";
-import { verifyJwt } from "@/lib/jwt";
+import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
     try {
         await connectToDatabase();
 
-        const cookieStore = await cookies();
-        const token = cookieStore.get('token')?.value;
-        if (!token) {
+        const userPayload = await getAuthenticatedUser();
+        if (!userPayload) {
             return NextResponse.json(
                 { message: 'Not authenticated', user: null },
                 { status: 401 }
             );
         }
-
-        const payload = verifyJwt(token)
-        const user = await User.findById(payload.id).select('-password');
+        const user = await User.findById(userPayload.id).select('-password');
 
         return NextResponse.json(
             { message: 'User fetched successfully', user },
