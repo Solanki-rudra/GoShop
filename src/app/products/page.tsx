@@ -1,13 +1,7 @@
 // app/products/page.tsx
-import { BASE_URL } from "@/config/api";
 import Image from "next/image";
 import Link from "next/link";
-
-const getProducts = async () => {
-    const res = await fetch(`${BASE_URL}/api/products`, { cache: "no-store" });
-    if (!res.ok) throw new Error("Failed to fetch products");
-    return res.json();
-};
+import { getProducts } from "@/lib/api";
 
 export default async function ProductsPage() {
     const { products } = await getProducts();

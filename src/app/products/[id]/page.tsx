@@ -1,11 +1,7 @@
-import { BASE_URL } from "@/config/api";
+import { getProduct } from "@/lib/api";
 import Image from "next/image";
 
-const getProduct = async (id: string) => {
-  const response = await fetch(`${BASE_URL}/api/products/${id}`, { cache: "no-store" });
-  if (!response.ok) throw new Error("Failed to fetch product");
-  return response.json();
-};
+
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { product } = await getProduct(params.id);
