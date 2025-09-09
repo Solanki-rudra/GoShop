@@ -44,7 +44,7 @@ export const POST = async (request: Request) => {
 
         const { name, description, price, discount, stock, category, images, video } = await request.json();
 
-        if (!name || !description || !price || !stock || !category || images.length === 0) {
+        if (!name || !description || !price || !stock || !category) {
             return NextResponse.json(
                 { message: 'Missing required fields' },
                 { status: 400 }
