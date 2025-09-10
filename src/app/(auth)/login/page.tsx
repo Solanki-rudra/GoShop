@@ -3,29 +3,32 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/lib/api";
+import { useCustNotification } from "@/context/NotificationProvider";
+import {
+  Form,
+  Input,
+  Button,
+  Typography,
+  Card,
+  Space,
+} from "antd";
+
+const { Title, Text } = Typography;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const custNotification = useCustNotification();
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
-
     try {
-      const res = await loginUser(form); // <-- missing await fixed
-      if (res.ok) {
-        router.push("/"); // redirect after login
-      } else {
-        console.error("Login failed");
-      }
-    } catch (err) {
-      console.error(err);
+      const res = await loginUser(values);
+      custNotification.success(res?.message || "Logged in successfully");
+      // router.push("/");
+console.log(res)
+    } catch (err: any) {
+      custNotification.error(err?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -33,67 +36,65 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
-        {/* Header */}
-        <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-2">
-          Welcome Back
-        </h1>
-        <p className="text-center text-gray-500 text-sm mb-6">
-          Login to continue your journey 🚀
-        </p>
+      <Card
+        className="w-full max-w-md shadow-lg rounded-2xl border border-gray-100"
+        bodyStyle={{ padding: "2rem" }}
+      >
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          {/* Header */}
+          <div className="text-center">
+            <Title level={2} style={{ marginBottom: 0 }}>
+              Welcome Back
+            </Title>
+            <Text type="secondary">Login to continue your journey 🚀</Text>
+          </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-xl text-white font-medium 
-                        shadow-md transition 
-                        ${
-                          loading
-                            ? "bg-blue-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
-                        }`}
+          {/* Form */}
+          <Form
+            name="login"
+            layout="vertical"
+            onFinish={onFinish}
+            requiredMark={false}
           >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+            <Form.Item
+              label="Email Address"
+              name="email"
+              rules={[
+                { required: true, message: "Please enter your email" },
+                { type: "email", message: "Please enter a valid email" },
+              ]}
+            >
+              <Input placeholder="you@example.com" size="large" />
+            </Form.Item>
 
-        {/* Footer */}
-        <p className="text-sm text-center text-gray-600 mt-6">
-          Don&apos;t have an account?{" "}
-          <a
-            href="/register"
-            className="text-blue-600 font-medium hover:underline"
-          >
-            Register
-          </a>
-        </p>
-      </div>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[{ required: true, message: "Please enter your password" }]}
+            >
+              <Input.Password placeholder="••••••••" size="large" />
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                block
+                loading={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
+              </Button>
+            </Form.Item>
+          </Form>
+
+          {/* Footer */}
+          <div className="text-center">
+            <Text type="secondary">Don&apos;t have an account? </Text>
+            <a href="/register">Register</a>
+          </div>
+        </Space>
+      </Card>
     </div>
   );
 }

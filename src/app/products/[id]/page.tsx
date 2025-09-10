@@ -1,8 +1,26 @@
+"use client";
+
 import { getProduct } from "@/lib/api";
 import ProductCarousel from "@/components/ProductCarousel";
+import { useCustNotification } from "@/context/NotificationProvider";
+import { useEffect, useState } from "react";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const { product } = await getProduct(params.id);
+export default function Page({ params }: { params: { id: string } }) {
+  const custNotification = useCustNotification();
+  const [product, setProduct] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getProduct(params?.id);
+        setProduct(response?.product || []);
+      } catch (error: any) {
+        custNotification.error(error?.message || "Something went wrong");
+      }
+    })();
+  }, [params?.id]);
+
+  if (!product) return <p>Loading...</p>;
   const finalPrice = product.price - product.discount;
 
   return (
@@ -55,36 +73,12 @@ export default async function Page({ params }: { params: { id: string } }) {
 
           {/* Buttons */}
           <div className="flex gap-4 mt-6">
-            <button className="flex-1 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
+            <button className=" px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
               Add to Cart
-            </button>
-            <button className="flex-1 px-6 py-3 rounded-xl border border-gray-400 hover:bg-gray-100 font-medium transition">
-              Buy Now
             </button>
           </div>
         </div>
       </div>
-
-      {/* More Images / Gallery */}
-      {product.images.length > 1 && (
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">More Images</h2>
-          <div className="flex gap-4 overflow-x-auto pb-2">
-            {product.images.slice(1).map((img: string, i: number) => (
-              <div
-                key={i}
-                className="relative w-32 h-32 flex-shrink-0 border rounded-lg overflow-hidden"
-              >
-                <img
-                  src={img}
-                  alt={`${product.name}-${i}`}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

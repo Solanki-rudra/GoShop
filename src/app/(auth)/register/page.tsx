@@ -3,34 +3,39 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { registerUser } from "@/lib/api";
+import { useCustNotification } from "@/context/NotificationProvider";
+
+import {
+  Form,
+  Input,
+  Button,
+  Typography,
+  Card,
+  Space,
+  Radio,
+} from "antd";
+
+const { Title, Text } = Typography;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    role: "buyer", // default role
-  });
+  const custNotification = useCustNotification();
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFinish = async (values: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    role: string;
+  }) => {
     setLoading(true);
-
     try {
-      const res = await registerUser(form);
-      if (res.ok) {
-        router.push("/login");
-      } else {
-        console.error("Registration failed");
-      }
-    } catch (err) {
+      const res = await registerUser(values);
+      custNotification.success(res?.message || "Registered successfully");
+      router.push("/login");
+    } catch (err: any) {
+      custNotification.error(err?.message || "Registration failed");
       console.error(err);
     } finally {
       setLoading(false);
@@ -39,105 +44,117 @@ export default function RegisterPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
-        {/* Header */}
-        <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-2">
-          Create Account
-        </h1>
-        <p className="text-center text-gray-500 text-sm mb-6">
-          Join us today! Please fill in your details.
-        </p>
+      <Card
+        className="w-full max-w-md shadow-lg rounded-2xl border border-gray-100"
+        bodyStyle={{ padding: "2rem" }}
+      >
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          {/* Header */}
+          <div className="text-center">
+            <Title level={2} style={{ marginBottom: 0 }}>
+              Create Account
+            </Title>
+            <Text type="secondary">Join us today! 🚀</Text>
+          </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700"
-          />
-
-          {/* Email */}
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700"
-          />
-
-          {/* Password */}
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700"
-          />
-
-          {/* Phone */}
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            value={form.phone}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700"
-          />
-
-          {/* Role Dropdown */}
-          <select
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       outline-none transition text-gray-700 bg-white"
+          {/* Form */}
+          <Form
+            name="register"
+            layout="vertical"
+            onFinish={onFinish}
+            requiredMark={false}
+            initialValues={{ role: "buyer" }} // default role
           >
-            <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
-          </select>
+            {/* Name */}
+            <Form.Item
+              label="Full Name"
+              name="name"
+              rules={[{ required: true, message: "Please enter your full name" }]}
+            >
+              <Input placeholder="John Doe" size="large" />
+            </Form.Item>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-xl text-white font-medium 
-                        shadow-md transition 
-                        ${
-                          loading
-                            ? "bg-blue-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
+            {/* Email */}
+            <Form.Item
+              label="Email Address"
+              name="email"
+              rules={[
+                { required: true, message: "Please enter your email" },
+                { type: "email", message: "Please enter a valid email" },
+              ]}
+            >
+              <Input placeholder="you@example.com" size="large" />
+            </Form.Item>
 
-        {/* Footer */}
-        <p className="text-sm text-center text-gray-600 mt-6">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 font-medium hover:underline">
-            Login
-          </a>
-        </p>
-      </div>
+            {/* Password */}
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[{ required: true, message: "Please enter your password" }]}
+            >
+              <Input.Password placeholder="••••••••" size="large" />
+            </Form.Item>
+
+            {/* Phone */}
+            <Form.Item
+              label="Phone Number"
+              name="phone"
+              rules={[
+                { pattern: /^\+?\d{7,15}$/, message: "Enter a valid phone number" },
+              ]}
+            >
+              <Input placeholder="+1234567890" size="large" />
+            </Form.Item>
+
+            {/* Role as Radio cards */}
+            <Form.Item name="role" className="mb-4 flex justify-center">
+              <Radio.Group
+                optionType="button"
+                buttonStyle="solid"
+                className="w-full flex justify-between"
+              >
+                <Radio.Button
+                  value="buyer"
+                  className="flex-1 text-center py-4 px-2"
+                >
+                  <div className="font-semibold mb-2">Shopping</div>
+                  <div className="text-xs text-gray-500">
+                    Buy your dream products
+                  </div>
+                </Radio.Button>
+                <Radio.Button
+                  value="seller"
+                  className="flex-1 text-center py-4 px-2"
+                >
+                  <div className="font-semibold mb-2">Selling</div>
+                  <div className="text-xs text-gray-500">
+                    Sell your products easily
+                  </div>
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+
+            {/* Submit Button */}
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                block
+                loading={loading}
+              >
+                {loading ? "Registering..." : "Register"}
+              </Button>
+            </Form.Item>
+          </Form>
+
+          {/* Footer */}
+          <div className="text-center">
+            <Text type="secondary">Already have an account? </Text>
+            <a href="/login">Login</a>
+          </div>
+        </Space>
+      </Card>
     </div>
   );
 }

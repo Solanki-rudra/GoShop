@@ -1,10 +1,24 @@
-// app/products/page.tsx
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getProducts } from "@/lib/api";
 import ProductCarousel from "@/components/ProductCarousel";
+import { useCustNotification } from "@/context/NotificationProvider";
 
-export default async function ProductsPage() {
-  const { products } = await getProducts();
+export default function ProductsPage() {
+  const custNotification = useCustNotification();
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getProducts();
+        setProducts(response?.products || []);
+      } catch (error: any) {
+        custNotification.error(error?.message || "Something went wrong");
+      }
+    })();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">

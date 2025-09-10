@@ -3,3 +3,7 @@ export const ROLES = {
     CUSTOMER: 'customer',
     SELLER: 'seller'
 }
+
+export const BRAND_NAME = "GoShop"
+
+export const BRAND_DESCRIPTION = "your shopping destination"
