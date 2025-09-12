@@ -21,9 +21,9 @@ export const GET = async () => {
 
     const user = await User.findById(userPayload.id).populate(
       "cart.productId",
-      "name price image" // only these fields
+      "name price images" // only these fields
     );
-
+console.log(user);
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -76,7 +76,10 @@ export const POST = async (request: Request) => {
       );
     }
 
-    const user = await User.findById(userPayload.id);
+    const user = await User.findById(userPayload.id).populate(
+      "cart.productId",
+      "name price images" // only these fields
+    );
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -144,7 +147,10 @@ export const PATCH = async (request: Request) => {
       );
     }
 
-    const user = await User.findById(userPayload.id);
+    const user = await User.findById(userPayload.id).populate(
+      "cart.productId",
+      "name price images" // only these fields
+    );
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -153,7 +159,7 @@ export const PATCH = async (request: Request) => {
     }
 
     const itemIndex = user.cart.findIndex(
-      (item: any) => item.productId.toString() === productId
+      (item: any) => item.productId._id.toString() === productId
     );
 
     if (itemIndex === -1) {
@@ -203,7 +209,10 @@ export const DELETE = async (request: Request) => {
       );
     }
 
-    const user = await User.findById(userPayload.id);
+    const user = await User.findById(userPayload.id).populate(
+      "cart.productId",
+      "name price images" // only these fields
+    );
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -214,7 +223,7 @@ export const DELETE = async (request: Request) => {
     user.cart = user.cart.filter(
       (item: any) => item.productId.toString() !== productId
     );
-
+console.log(user.cart)
     await user.save();
 
     return NextResponse.json(

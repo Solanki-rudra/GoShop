@@ -36,8 +36,10 @@ export default function CartPage() {
   // ======================
   // Update Quantity
   // ======================
-  const handleQuantityChange = async (productId: string, value: number | null) => {
-    if (!value || value < 1) return; // prevent NaN / invalid
+  const handleQuantityChange = async (productId: string, value: number) => {
+    if (!value || value < 1 || value > 5) {
+      custNotification.error("Quantity should be 1 to 5")
+    }; // prevent NaN / invalid
     try {
       const data = await updateCartItem(productId, value);
       setCart(data.cart || []);

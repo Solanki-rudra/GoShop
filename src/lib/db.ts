@@ -10,12 +10,19 @@ if (!cached) {
 }
 
 export const connectToDatabase = async () => {
+  console.log("Attempting to connect to database...");
+  
   if (cached.conn) {
+    console.log("Already connected, returning cached connection...");
     return cached.conn;
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => mongoose);
+    console.log("Creating new connection promise...");
+    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => mongoose).catch((error) => {
+      console.error("Connection failed", error);
+      throw error;
+    });
   }
 
   cached.conn = await cached.promise;

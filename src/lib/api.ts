@@ -104,12 +104,16 @@ export const updateCartItem = async (productId: string, quantity: number) => {
 };
 
 export const removeFromCart = async (productId: string) => {
-  const response = await fetch(`${BASE_URL}/api/cart/remove`, {
+  const response = await fetch(`${BASE_URL}/api/cart`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ productId }),
     credentials: "include",
   });
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.message)
+  }
   return response.json();
 };
 
