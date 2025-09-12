@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "antd/dist/reset.css";
 import "./globals.css";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import { NotificationProvider } from "@/context/NotificationProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
