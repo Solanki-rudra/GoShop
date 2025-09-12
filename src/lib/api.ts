@@ -56,6 +56,19 @@ export const loginUser = async (data: any) => {
   return response.json();
 };
 
+export const getUserInfo = async () => {
+  const response = await fetch(`${BASE_URL}/api/auth/me`, {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+  return response.json();
+}
+
 export const logoutUser = async () => {
   const response = await fetch(`${BASE_URL}/api/auth/logout`, {
     method: "POST",

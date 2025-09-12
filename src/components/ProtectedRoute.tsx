@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getUserFromLocalStorage } from "@/lib/clientAuth";
+import Spinner from "./Spinner";
 
 interface Props {
   allowedRoles: string[];
@@ -31,7 +32,7 @@ export default function ProtectedRoute({ allowedRoles, children }: Props) {
     setLoading(false);
   }, [allowedRoles, router]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner  />;
 
   return isAllowed ? <>{children}</> : null;
 }

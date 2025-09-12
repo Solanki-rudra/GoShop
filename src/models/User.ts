@@ -26,19 +26,7 @@ const userSchema = new mongoose.Schema(
         },
         addresses: [
             {
-                type: String,
-                line1: {
-                    type: String,
-                    required: true
-                },
-                city: {
-                    type: String,
-                    required: true
-                },
-                zip: {
-                    type: String,
-                    required: true
-                }
+                type: String
             },
         ],
         cart: [

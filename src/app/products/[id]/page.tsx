@@ -4,6 +4,7 @@ import { getProduct } from "@/lib/api";
 import ProductCarousel from "@/components/ProductCarousel";
 import { useCustNotification } from "@/context/NotificationProvider";
 import { useEffect, useState } from "react";
+import Spinner from "@/components/Spinner";
 
 export default function Page({ params }: { params: { id: string } }) {
   const custNotification = useCustNotification();
@@ -20,7 +21,7 @@ export default function Page({ params }: { params: { id: string } }) {
     })();
   }, [params?.id]);
 
-  if (!product) return <p>Loading...</p>;
+  if (!product) return <Spinner />;
   const finalPrice = product.price - product.discount;
 
   return (

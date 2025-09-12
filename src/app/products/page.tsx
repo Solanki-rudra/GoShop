@@ -4,10 +4,12 @@ import Link from "next/link";
 import { getProducts, addToCart } from "@/lib/api";
 import ProductCarousel from "@/components/ProductCarousel";
 import { useCustNotification } from "@/context/NotificationProvider";
+import Spinner from "@/components/Spinner";
 
 export default function ProductsPage() {
   const custNotification = useCustNotification();
   const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,6 +19,8 @@ export default function ProductsPage() {
         setProducts(response?.products || []);
       } catch (error: any) {
         custNotification.error(error?.message || "Something went wrong");
+      }finally{
+        setLoading(false);
       }
     })();
   }, []);
@@ -35,6 +39,8 @@ export default function ProductsPage() {
       setLoadingProductId(null);
     }
   };
+
+  if (loading) return <Spinner />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
