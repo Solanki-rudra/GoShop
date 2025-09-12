@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProducts } from "@/lib/api";
+import { getProducts, addToCart } from "@/lib/api";
 import ProductCarousel from "@/components/ProductCarousel";
 import { useCustNotification } from "@/context/NotificationProvider";
 
 export default function ProductsPage() {
   const custNotification = useCustNotification();
   const [products, setProducts] = useState<any[]>([]);
+  const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -20,6 +21,21 @@ export default function ProductsPage() {
     })();
   }, []);
 
+  // ======================
+  // Handle Add to Cart
+  // ======================
+  const handleAddToCart = async (productId: string) => {
+    try {
+      setLoadingProductId(productId);
+      await addToCart(productId, 1);
+      custNotification.success("Added to cart!");
+    } catch (err: any) {
+      custNotification.error(err.message || "Failed to add to cart");
+    } finally {
+      setLoadingProductId(null);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Products</h1>
@@ -27,6 +43,7 @@ export default function ProductsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product: any) => {
           const finalPrice = product.price - product.discount;
+          const isLoading = loadingProductId === product._id;
 
           return (
             <div
@@ -62,11 +79,13 @@ export default function ProductsPage() {
               </div>
 
               <button
+                disabled={isLoading}
+                onClick={() => handleAddToCart(product._id)}
                 className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-xl 
                            flex items-center justify-center gap-2 
-                           hover:bg-blue-700 transition font-medium"
+                           hover:bg-blue-700 transition font-medium disabled:opacity-50"
               >
-                Add to Cart
+                {isLoading ? "Adding..." : "Add to Cart"}
               </button>
             </div>
           );
