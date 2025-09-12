@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const res = await loginUser(values);
       custNotification.success(res?.message || "Logged in successfully");
-      // router.push("/");
+      router.push("/");
 console.log(res)
     } catch (err: any) {
       custNotification.error(err?.message || "Login failed");

@@ -5,8 +5,22 @@ import { ShoppingCartOutlined, UserOutlined, ProfileOutlined, LogoutOutlined, Un
 import Link from "next/link";
 import { BRAND_NAME } from "@/constants/constant";
 import { MenuProps } from "antd";
+import { logoutUser } from "@/lib/api";
+import { useCustNotification } from "@/context/NotificationProvider";
 
 export default function Header() {
+    const custNotification = useCustNotification();
+  
+
+  const handleLogout = async () => {
+    try {
+       const response = await logoutUser()
+      custNotification.success(response?.message || "Logged out successfully");
+      window.location.href = "/login";
+    } catch (error:any) {
+      custNotification.error(error?.message || "Logout failed");
+    }
+  }
 
 // Define menu items with correct type
 const menuItems: MenuProps["items"] = [
@@ -27,7 +41,7 @@ const menuItems: MenuProps["items"] = [
     key: "logout",
     icon: <LogoutOutlined />,
     danger: true,
-    label: "Logout",
+    label: <Button type="text" onClick={handleLogout}>Logout</Button>,
   },
 ];
 

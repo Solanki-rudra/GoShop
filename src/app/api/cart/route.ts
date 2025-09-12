@@ -221,7 +221,7 @@ export const DELETE = async (request: Request) => {
     }
 
     user.cart = user.cart.filter(
-      (item: any) => item.productId.toString() !== productId
+      (item: any) => item.productId._id.toString() !== productId
     );
 console.log(user.cart)
     await user.save();

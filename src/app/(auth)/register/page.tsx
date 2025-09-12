@@ -33,7 +33,7 @@ export default function RegisterPage() {
     try {
       const res = await registerUser(values);
       custNotification.success(res?.message || "Registered successfully");
-      router.push("/login");
+      router.push("/");
     } catch (err: any) {
       custNotification.error(err?.message || "Registration failed");
       console.error(err);
