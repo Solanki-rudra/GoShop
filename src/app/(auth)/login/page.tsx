@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/lib/api";
 import { useCustNotification } from "@/context/NotificationProvider";
@@ -12,6 +12,7 @@ import {
   Card,
   Space,
 } from "antd";
+import { getUserFromLocalStorage, setUserToLocalStorage } from "@/lib/clientAuth";
 
 const { Title, Text } = Typography;
 
@@ -20,11 +21,19 @@ export default function LoginPage() {
   const custNotification = useCustNotification();
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const storedUser = getUserFromLocalStorage();
+    if (storedUser?.token) {
+      router.replace("/"); // avoid going back to login
+    }
+  }, [router]);
+
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
       const res = await loginUser(values);
       custNotification.success(res?.message || "Logged in successfully");
+      setUserToLocalStorage(res.user, res.user.token);
       router.push("/");
 console.log(res)
     } catch (err: any) {

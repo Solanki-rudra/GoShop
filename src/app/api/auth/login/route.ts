@@ -40,7 +40,7 @@ export const POST = async (req: Request) => {
         let response = NextResponse.json(
             {
                 message: 'User logged in successfully',
-                user: safeUser,
+                user: { ...safeUser, token },
             },
             { status: 200 }
         );

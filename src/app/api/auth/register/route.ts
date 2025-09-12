@@ -41,7 +41,7 @@ export const POST = async (req: Request) => {
         let response = NextResponse.json(
             {
                 message: 'User registered successfully',
-                user: safeUser,
+                user: { ...safeUser, token },
             },
             { status: 201 }
         );

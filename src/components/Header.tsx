@@ -7,6 +7,7 @@ import { BRAND_NAME } from "@/constants/constant";
 import { MenuProps } from "antd";
 import { logoutUser } from "@/lib/api";
 import { useCustNotification } from "@/context/NotificationProvider";
+import { removeUserFromLocalStorage } from "@/lib/clientAuth";
 
 export default function Header() {
     const custNotification = useCustNotification();
@@ -16,6 +17,7 @@ export default function Header() {
     try {
        const response = await logoutUser()
       custNotification.success(response?.message || "Logged out successfully");
+      removeUserFromLocalStorage();
       window.location.href = "/login";
     } catch (error:any) {
       custNotification.error(error?.message || "Logout failed");
