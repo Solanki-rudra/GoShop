@@ -2,6 +2,7 @@ import { ROLES } from "@/constants/constant";
 import { connectToDatabase } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/helper";
 import Product from "@/models/Product";
+import User from "@/models/User";
 import { NextResponse } from "next/server";
 
 interface Params {
@@ -11,29 +12,45 @@ interface Params {
 }
 
 export const GET = async (request: Request, { params }: Params) => {
-    try {
-        await connectToDatabase()
+  try {
+    await connectToDatabase();
 
-        const product = await Product.findById(params.id)
-        if (!product) {
-            return NextResponse.json(
-                { message: "Product not found" },
-                { status: 404 }
-            )
-        }
-
-        return NextResponse.json(
-            { message: "Product fetched successfully", product },
-            { status: 200 }
-        )
-    } catch (error: any) {
-        console.log('Getting product error: ', error)
-        return NextResponse.json(
-            { message: "Server error", error: error.message || 'Internal server error' },
-            { status: 500 }
-        );
+    const product = await Product.findById(params.id);
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
     }
-}
+
+    // 🔹 Check if current user has this product in favorites
+    const userPayload = await getAuthenticatedUser();
+    let isFavorite = false;
+
+    if (userPayload) {
+      const user = await User.findById(userPayload._id);
+      if (
+        user?.favorites.some(
+          (favId) => favId.toString() === product._id.toString()
+        )
+      ) {
+        isFavorite = true;
+      }
+    }
+
+    return NextResponse.json(
+      { message: "Product fetched successfully", product, isFavorite },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.log("Getting product error: ", error);
+    return NextResponse.json(
+      { message: "Server error", error: error.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+};
+
 
 export const PUT = async (request: Request, { params }: Params) => {
     try {

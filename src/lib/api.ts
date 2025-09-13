@@ -142,3 +142,11 @@ export const removeFromCart = async (productId: string) => {
   return response.json();
 };
 
+export const toggleFavorite = async (productId: string) => {
+  const res = await fetch(`/api/products/${productId}/favorite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("Failed to toggle favorite");
+  return res.json();
+};

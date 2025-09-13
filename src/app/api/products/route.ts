@@ -3,32 +3,53 @@ import Product from "@/models/Product";
 import { NextResponse } from "next/server";
 import { ROLES } from "@/constants/constant";
 import { getAuthenticatedUser } from "@/lib/helper";
+import User from "@/models/User";
 
 export const GET = async () => {
-    try {
-        await connectToDatabase();
+  try {
+    await connectToDatabase();
 
-        const products = await Product.find();
-
-        if (!products) {
-            return NextResponse.json(
-                { message: 'Products not found' },
-                { status: 404 }
-            )
-        }
-
-        return NextResponse.json(
-            { message: 'Products fetched successfully', products },
-            { status: 200 }
-        )
-    } catch (error: any) {
-        console.log('Getting products error : ', error);
-        return NextResponse.json(
-            { message: error.message || 'Internal Server Error' },
-            { status: 500 }
-        )
+    const products = await Product.find();
+    if (!products || products.length === 0) {
+      return NextResponse.json(
+        { message: "Products not found" },
+        { status: 404 }
+      );
     }
-}
+
+    // 🔹 Get logged-in user
+    const userPayload = await getAuthenticatedUser();
+    let favorites: string[] = [];
+
+    if (userPayload) {
+      const user = await User.findById(userPayload._id);
+      if (user) {
+        favorites = user.favorites.map((fav: any) => fav.toString());
+      }
+    }
+
+    // 🔹 Add isFavorite flag to each product
+    const productsWithFavorite = products.map((product: any) => ({
+      ...product.toObject(),
+      isFavorite: favorites.includes(product._id.toString()),
+    }));
+
+    return NextResponse.json(
+      {
+        message: "Products fetched successfully",
+        products: productsWithFavorite,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.log("Getting products error : ", error);
+    return NextResponse.json(
+      { message: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+};
+
 
 export const POST = async (request: Request) => {
     try {

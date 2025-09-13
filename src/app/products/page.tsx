@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProducts, addToCart } from "@/lib/api";
+import { getProducts, addToCart, toggleFavorite } from "@/lib/api";
 import ProductCarousel from "@/components/ProductCarousel";
 import { useCustNotification } from "@/context/NotificationProvider";
 import Spinner from "@/components/Spinner";
+import { Button } from "antd";
 
 export default function ProductsPage() {
   const custNotification = useCustNotification();
@@ -19,7 +20,7 @@ export default function ProductsPage() {
         setProducts(response?.products || []);
       } catch (error: any) {
         custNotification.error(error?.message || "Something went wrong");
-      }finally{
+      } finally {
         setLoading(false);
       }
     })();
@@ -40,6 +41,34 @@ export default function ProductsPage() {
     }
   };
 
+  // ======================
+  // Handle Toggle Favorite
+  // ======================
+  const handleToggleFavorite = async (productId: string) => {
+    try {
+      // optimistic update
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === productId ? { ...p, isFavorite: !p.isFavorite } : p
+        )
+      );
+
+      const res = await toggleFavorite(productId);
+
+      // sync with backend response
+      if (res?.favorites) {
+        setProducts((prev) =>
+          prev.map((p) => ({
+            ...p,
+            isFavorite: res.favorites.includes(p._id),
+          }))
+        );
+      }
+    } catch (err: any) {
+      custNotification.error(err.message || "Failed to update favorites");
+    }
+  };
+
   if (loading) return <Spinner />;
 
   return (
@@ -54,12 +83,13 @@ export default function ProductsPage() {
           return (
             <div
               key={product._id}
-              className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-4 flex flex-col"
+              className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-4 flex flex-col relative"
             >
+                  {/* Favorite Icon */}
+
               <Link href={`/products/${product._id}`}>
                 <ProductCarousel product={product} />
               </Link>
-
               <div className="flex-1 flex flex-col">
                 <Link href={`/products/${product._id}`}>
                   <h2 className="text-lg font-medium text-gray-800 line-clamp-2 hover:text-blue-600">
@@ -71,6 +101,7 @@ export default function ProductsPage() {
                   <span className="text-xl font-bold text-gray-900">
                     ₹{finalPrice}
                   </span>
+
                   {product.discount > 0 && (
                     <div className="flex items-center gap-2">
                       <span className="text-sm line-through text-gray-500">
@@ -84,15 +115,25 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <button
+             <div className="flex justify-between items-center">
+
+               <button
                 disabled={isLoading}
                 onClick={() => handleAddToCart(product._id)}
-                className="mt-4 w-full bg-blue-600 text-white py-2.5 rounded-xl 
+                className="mt-4 w-[200px] bg-blue-600 text-white py-2.5 rounded-xl 
                            flex items-center justify-center gap-2 
                            hover:bg-blue-700 transition font-medium disabled:opacity-50"
               >
                 {isLoading ? "Adding..." : "Add to Cart"}
               </button>
+                <Button
+
+                  onClick={() => handleToggleFavorite(product._id)}
+                  className="absolute top-3 right-3 text-2xl w-[20px]"
+                >
+                  {product?.isFavorite ? "❤️" : "🤍"}
+                </Button>
+             </div>
             </div>
           );
         })}
