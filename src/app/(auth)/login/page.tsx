@@ -34,7 +34,10 @@ export default function LoginPage() {
       const res = await loginUser(values);
       custNotification.success(res?.message || "Logged in successfully");
       setUserToLocalStorage(res.user, res.user.token);
-      router.push("/");
+      if (res.user?.role === "customer") router.push("/");
+      if (res.user?.role === "seller") router.push("/seller/products");
+      if (res.user?.role === "admin") router.push("/admin/customers");
+
 console.log(res)
     } catch (err: any) {
       custNotification.error(err?.message || "Login failed");

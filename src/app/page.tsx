@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Layout, Menu } from "antd";
 import { routeConfig } from "@/lib/routeConfig";
 import { getUserFromLocalStorage } from "@/lib/clientAuth";
+import { BRAND_NAME } from "@/constants/constant";
+import Link from "next/link";
+import ProductsPage from "./products/page";
 
 const { Header, Sider, Content } = Layout;
 
@@ -45,27 +48,6 @@ export default function Dashboard() {
     tabs.find((tab: any) => tab.key === activeTab)?.component || null;
 
   return (
-    <Layout style={{ minHeight: "80vh" }}>
-      <Sider>
-        <Menu
-          theme="dark"
-          mode="inline"
-          items={tabs.map((tab: any) => ({
-            key: tab.key,
-            label: tab.label,
-          }))}
-          selectedKeys={[activeTab]}
-          onClick={(e) => setActiveTab(e.key)}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{ background: "#fff", padding: "0 16px" }}>
-          <h2>{role.toUpperCase()} Dashboard</h2>
-        </Header>
-        <Content style={{ margin: "16px" }}>
-          {ActiveComponent && <ActiveComponent />}
-        </Content>
-      </Layout>
-    </Layout>
+    <ProductsPage />
   );
 }
