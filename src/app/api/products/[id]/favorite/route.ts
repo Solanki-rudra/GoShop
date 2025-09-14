@@ -1,3 +1,5 @@
+// product/[id]/favorite/route.js
+
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/helper";
@@ -17,31 +19,36 @@ export const POST = async (req: Request, { params }: Params) => {
       return NextResponse.json({ message: "Not authorized" }, { status: 403 });
     }
 
-    const user = await User.findById(userPayload._id);
+    const user = await User.findById(userPayload.id);
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const productId = new mongoose.Types.ObjectId(params.id); // ✅ convert string → ObjectId
-
+    const productId = new mongoose.Types.ObjectId(params.id);
     const index = user.favorites.findIndex(
       (favId: any) => favId.toString() === productId.toString()
     );
 
+    let isFavorite = false; // ✅ Track the new state
+
     if (index > -1) {
       // Remove favorite
       user.favorites.splice(index, 1);
+      isFavorite = false;
     } else {
       // Add favorite
       user.favorites.push(productId);
+      isFavorite = true;
     }
 
     await user.save();
 
+    // ✅ Key Change: Return the new favorite status directly.
+    // This is much more efficient than sending the entire favorites array.
     return NextResponse.json(
       {
         message: "Favorites updated",
-        favorites: user.favorites,
+        isFavorite, // Send back the new boolean status
       },
       { status: 200 }
     );
@@ -53,3 +60,11 @@ export const POST = async (req: Request, { params }: Params) => {
     );
   }
 };
+
+export const GET = async () => {
+  console.log("GET method not allowed on this route");
+  return NextResponse.json(
+    { message: "GET method not allowed" },
+    { status: 405 }
+  );
+}

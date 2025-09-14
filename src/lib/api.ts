@@ -150,3 +150,14 @@ export const toggleFavorite = async (productId: string) => {
   if (!res.ok) throw new Error("Failed to toggle favorite");
   return res.json();
 };
+
+export const getFavorites = async () => {
+  const res = await fetch("/api/products/favorite", {
+    method: "GET",
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to fetch favorites");
+  }
+  return data;
+};

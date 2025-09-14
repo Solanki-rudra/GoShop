@@ -44,28 +44,33 @@ export default function ProductsPage() {
   // ======================
   // Handle Toggle Favorite
   // ======================
-  const handleToggleFavorite = async (productId: string) => {
+const handleToggleFavorite = async (productId: string) => {
     try {
-      // optimistic update
+      // Optimistic update for instant UI feedback
       setProducts((prev) =>
         prev.map((p) =>
           p._id === productId ? { ...p, isFavorite: !p.isFavorite } : p
         )
       );
 
+      // Call the API
       const res = await toggleFavorite(productId);
 
-      // sync with backend response
-      if (res?.favorites) {
-        setProducts((prev) =>
-          prev.map((p) => ({
-            ...p,
-            isFavorite: res.favorites.includes(p._id),
-          }))
-        );
-      }
+      // ✅ Key Change: Sync state with the definitive response from the backend.
+      // The API now returns { isFavorite: boolean }, which is much cleaner.
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === productId ? { ...p, isFavorite: res.isFavorite } : p
+        )
+      );
     } catch (err: any) {
       custNotification.error(err.message || "Failed to update favorites");
+      // Optional: Revert optimistic update on error
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === productId ? { ...p, isFavorite: !p.isFavorite } : p
+        )
+      );
     }
   };
 
@@ -85,7 +90,6 @@ export default function ProductsPage() {
               key={product._id}
               className="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition p-4 flex flex-col relative"
             >
-                  {/* Favorite Icon */}
 
               <Link href={`/products/${product._id}`}>
                 <ProductCarousel product={product} />
@@ -115,21 +119,17 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-             <div className="flex justify-between items-center">
+             <div className="flex justify-between items-center mt-3">
 
-               <button
+               <Button
+               type="primary"
                 disabled={isLoading}
                 onClick={() => handleAddToCart(product._id)}
-                className="mt-4 w-[200px] bg-blue-600 text-white py-2.5 rounded-xl 
-                           flex items-center justify-center gap-2 
-                           hover:bg-blue-700 transition font-medium disabled:opacity-50"
               >
                 {isLoading ? "Adding..." : "Add to Cart"}
-              </button>
+              </Button>
                 <Button
-
                   onClick={() => handleToggleFavorite(product._id)}
-                  className="absolute top-3 right-3 text-2xl w-[20px]"
                 >
                   {product?.isFavorite ? "❤️" : "🤍"}
                 </Button>

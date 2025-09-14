@@ -5,6 +5,7 @@ import ProductCarousel from "@/components/ProductCarousel";
 import { useCustNotification } from "@/context/NotificationProvider";
 import { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
+import { Button } from "antd";
 
 export default function Page({ params }: { params: { id: string } }) {
   const custNotification = useCustNotification();
@@ -15,7 +16,7 @@ export default function Page({ params }: { params: { id: string } }) {
     (async () => {
       try {
         const response = await getProduct(params?.id);
-        console.log("Product details:", response?.product);
+        // ✅ Key Change: The `isFavorite` property is now part of the product object
         setProduct(response?.product || null);
       } catch (error: any) {
         custNotification.error(error?.message || "Something went wrong");
@@ -33,31 +34,27 @@ export default function Page({ params }: { params: { id: string } }) {
   // Toggle Favorite
   // ======================
   const handleToggleFavorite = async () => {
+    if (!product) return;
     try {
-      // optimistic UI
-      setProduct((prev: any) =>
-        prev ? { ...prev, isFavorite: !prev.isFavorite } : prev
-      );
+      // Optimistic update for instant UI feedback
+      setProduct((prev: any) => ({ ...prev, isFavorite: !prev.isFavorite }));
 
       const res = await toggleFavorite(product._id);
 
-      // sync with backend response
-      if (res?.favorites) {
-        setProduct((prev: any) =>
-          prev
-            ? {
-                ...prev,
-                isFavorite: res.favorites.includes(product._id),
-              }
-            : prev
-        );
-      }
-
-      custNotification.success("Favorites updated!");
+      // ✅ Key Change: Sync with the definitive boolean response from the API.
+      setProduct((prev: any) =>
+        prev ? { ...prev, isFavorite: res.isFavorite } : prev
+      );
+      custNotification.success(
+        res.isFavorite ? "Added to favorites" : "Removed from favorites"
+      );
     } catch (err: any) {
       custNotification.error(err.message || "Failed to update favorites");
+      // Optional: Revert optimistic update on error
+      setProduct((prev: any) => ({ ...prev, isFavorite: !prev.isFavorite }));
     }
   };
+
 
   // ======================
   // Handle Add to Cart
@@ -79,21 +76,23 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="relative">
           <ProductCarousel product={product} />
 
-          {/* Heart Icon */}
-          <button
-            onClick={handleToggleFavorite}
-            className="absolute top-3 right-3 text-3xl"
-          >
-            {product.isFavorite ? "❤️" : "🤍"}
-          </button>
         </div>
 
         {/* Product Info */}
         <div className="flex flex-col justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-3">
-              {product.name}
-            </h1>
+            <div className="flex items-center gap-3 mb-3">
+              <h1 className="text-3xl m-0 font-bold text-gray-800">
+                {product.name}
+              </h1>
+              {/* Heart Icon */}
+              <Button
+                onClick={handleToggleFavorite}
+                type="text"
+              >
+                {product.isFavorite ? "❤️" : "🤍"}
+              </Button>
+            </div>
             <p className="text-gray-600 mb-6">{product.description}</p>
 
             {/* Price Section */}

@@ -1,3 +1,5 @@
+// product/[id]/route.js
+
 import { ROLES } from "@/constants/constant";
 import { connectToDatabase } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/helper";
@@ -6,9 +8,9 @@ import User from "@/models/User";
 import { NextResponse } from "next/server";
 
 interface Params {
-    params: {
-        id: string;
-    }
+  params: {
+    id: string;
+  };
 }
 
 export const GET = async (request: Request, { params }: Params) => {
@@ -17,29 +19,28 @@ export const GET = async (request: Request, { params }: Params) => {
 
     const product = await Product.findById(params.id);
     if (!product) {
-      return NextResponse.json(
-        { message: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "Product not found" }, { status: 404 });
     }
 
-    // 🔹 Check if current user has this product in favorites
+    // Convert to a plain object to modify it
+    const productObj = product.toObject();
+
     const userPayload = await getAuthenticatedUser();
     let isFavorite = false;
 
     if (userPayload) {
-      const user = await User.findById(userPayload._id);
-      if (
-        user?.favorites.some(
-          (favId) => favId.toString() === product._id.toString()
-        )
-      ) {
+      const user = await User.findById(userPayload.id).select("favorites").lean();
+      if (user?.favorites.some((favId) => favId.toString() === product._id.toString())) {
         isFavorite = true;
       }
     }
+    
+    // ✅ Key Change: Embed isFavorite directly into the product object.
+    // This makes the data structure consistent with the GET /api/products route.
+    productObj.isFavorite = isFavorite;
 
     return NextResponse.json(
-      { message: "Product fetched successfully", product, isFavorite },
+      { message: "Product fetched successfully", product: productObj },
       { status: 200 }
     );
   } catch (error: any) {
@@ -51,6 +52,7 @@ export const GET = async (request: Request, { params }: Params) => {
   }
 };
 
+// ... (PUT and DELETE methods remain unchanged)
 
 export const PUT = async (request: Request, { params }: Params) => {
     try {

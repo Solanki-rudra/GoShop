@@ -86,9 +86,8 @@ export const POST = async (request: Request) => {
         { status: 404 }
       );
     }
-
     const availableItem = user.cart.find(
-      (item: any) => item.productId.toString() === productId
+      (item: any) => item.productId?._id?.toString() === productId
     );
 
     if (availableItem && availableItem.quantity + quantity > 5) {
@@ -100,7 +99,7 @@ export const POST = async (request: Request) => {
 
     if (availableItem) {
       user.cart = user.cart.map((item: any) =>
-        item.productId.toString() === productId
+        item.productId?._id.toString() === productId
           ? { ...item, quantity: item.quantity + quantity }
           : item
       );

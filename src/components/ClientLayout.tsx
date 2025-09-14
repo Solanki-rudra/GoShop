@@ -28,6 +28,7 @@ const user = getUserFromLocalStorage();
           items={[
             { key: "products", label: <Link href="/products">Products</Link> },
             { key: "cart", label: <Link href="/cart">Cart</Link> },
+            { key: "favorite", label: <Link href="/favorite">Favorite</Link> },
             { key: "orders", label: <Link href="/orders">Orders</Link> },
             { key: "logout", label: <Logout /> },
           ]}

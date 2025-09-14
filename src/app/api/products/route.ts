@@ -22,7 +22,7 @@ export const GET = async () => {
     let favorites: string[] = [];
 
     if (userPayload) {
-      const user = await User.findById(userPayload._id);
+      const user = await User.findById(userPayload.id);
       if (user) {
         favorites = user.favorites.map((fav: any) => fav.toString());
       }
