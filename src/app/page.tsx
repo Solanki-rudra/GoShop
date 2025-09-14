@@ -8,6 +8,7 @@ import { getUserFromLocalStorage } from "@/lib/clientAuth";
 import { BRAND_NAME } from "@/constants/constant";
 import Link from "next/link";
 import ProductsPage from "./products/page";
+import Spinner from "@/components/Spinner";
 
 const { Header, Sider, Content } = Layout;
 
@@ -41,7 +42,7 @@ export default function Dashboard() {
   }, [router]);
 
 
-  if (!role) return <p>Loading...</p>;
+  if (!role) return <Spinner />;
 
   const tabs = routeConfig[role].tabs;
   const ActiveComponent =

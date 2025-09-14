@@ -1,19 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    images: {
+  images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "m.media-amazon.com",
+        hostname: "**", // ✅ allow all https domains
       },
       {
-        protocol: "https",
-        hostname: "iplanet.one",
+        protocol: "http",
+        hostname: "**", // ✅ (optional) allow http too
       },
     ],
   },
-
 };
 
 export default nextConfig;

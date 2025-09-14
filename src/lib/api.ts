@@ -3,15 +3,55 @@ import { BASE_URL } from "@/config/api";
 // ======================
 // Products
 // ======================
-export const getProducts = async () => {
-  const response = await fetch(`${BASE_URL}/api/products`, { cache: "no-store" });
+export const getProducts = async (sellerId?: string) => {
+  // Construct the base URL
+  let url = `${BASE_URL}/api/products`;
+
+  // If a sellerId is provided, append it as a query parameter
+  if (sellerId) {
+    url += `?sellerId=${sellerId}`;
+  }
+
+  const response = await fetch(url, { cache: "no-store" });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message);
+    throw new Error(error.message || "Failed to fetch products");
+  }
+
+  return response.json();
+};
+
+export const createProduct = async (data: any) => {
+  const response = await fetch(`${BASE_URL}/api/products`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to create product");
+  }
+  return response.json();
+}
+
+export const updateProduct = async (id: string, data: any) => {
+  const response = await fetch(`${BASE_URL}/api/products/${id}`, {
+    method: "PUT", // or PATCH depending on your API
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update product");
   }
   return response.json();
 };
+
 
 export const getProduct = async (id: string) => {
   const response = await fetch(`${BASE_URL}/api/products/${id}`, { cache: "no-store" });
@@ -22,6 +62,18 @@ export const getProduct = async (id: string) => {
   }
   return response.json();
 };
+
+export const deleteProduct = async (id: string) => {
+  const response = await fetch(`${BASE_URL}/api/products/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+  return response.json();
+}
 
 // ======================
 // Auth

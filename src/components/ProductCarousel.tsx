@@ -41,7 +41,7 @@ export default function ProductCarousel({ product }: { product: any }) {
   ];
 
   return (
-    <div className="relative w-full h-56 sm:h-64 md:h-72 mb-4 overflow-hidden rounded-xl">
+    <div className="relative w-full h-40 mb-4 overflow-hidden rounded-xl">
       <Swiper
         modules={[Navigation, Pagination]}
         navigation

@@ -1,23 +1,37 @@
 import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/Product";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server"; // Import NextRequest
 import { ROLES } from "@/constants/constant";
 import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
 
-export const GET = async () => {
+export const GET = async (request: NextRequest) => { // Accept request parameter
   try {
     await connectToDatabase();
 
-    const products = await Product.find();
+    // Get the search parameters from the request URL
+    const searchParams = request.nextUrl.searchParams;
+    const sellerId = searchParams.get('sellerId');
+    // Create a filter object. It will be empty by default to get all products.
+    const filter: { [key: string]: any } = {};
+
+    // If a sellerId is provided in the query, add it to the filter.
+    if (sellerId) {
+        filter.sellerId = sellerId;
+    }
+
+    // Use the filter object to find products.
+    const products = await Product.find(filter);
+    console.log("Products fetched from DB:", products);
+
     if (!products || products.length === 0) {
       return NextResponse.json(
-        { message: "Products not found" },
+        { message: "No products found" },
         { status: 404 }
       );
     }
 
-    // 🔹 Get logged-in user
+    // 🔹 Get logged-in user to check for favorites
     const userPayload = await getAuthenticatedUser();
     let favorites: string[] = [];
 
