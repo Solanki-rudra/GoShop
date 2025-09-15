@@ -10,22 +10,30 @@ export const GET = async () => {
         const userPayload = await getAuthenticatedUser();
         if (!userPayload) {
             return NextResponse.json(
-                { message: 'Not authenticated', user: null },
+                { message: "Not authenticated", user: null },
                 { status: 401 }
             );
         }
-        const user = await User.findById(userPayload.id).select('-password');
+
+        const user = await User.findById(userPayload.id).select("-password");
 
         return NextResponse.json(
-            { message: 'User fetched successfully', user },
+            { message: "User fetched successfully", user },
             { status: 200 }
         );
+    } catch (error: unknown) {
+        console.error("Me error:", error);
 
-    } catch (error: any) {
-        console.log('Me error:', error);
+        if (error instanceof Error) {
+            return NextResponse.json(
+                { message: "Server error", error: error.message, user: null },
+                { status: 500 }
+            );
+        }
+
         return NextResponse.json(
-            { message: "Server error", error: error.message, user: null },
+            { message: "Server error", error: String(error), user: null },
             { status: 500 }
         );
     }
-}
+};

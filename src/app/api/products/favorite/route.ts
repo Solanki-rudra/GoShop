@@ -1,8 +1,10 @@
+// src/app/api/products/favorite/route.ts
+
 import { connectToDatabase } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
-import "@/models/Product"; 
+import "@/models/Product";
 
 export const GET = async () => {
     try {
@@ -21,14 +23,12 @@ export const GET = async () => {
         }
 
         // 4. Find the user and populate their 'favorites' field
-        // .populate('favorites') automatically fetches the full product documents
-        // based on the ObjectIDs stored in the user's favorites array.
-        const user = await User.findById(userPayload.id).populate('favorites');
+        const user = await User.findById(userPayload.id).populate("favorites");
 
         // 5. If the user is not found in the database, return an error
         if (!user) {
             return NextResponse.json(
-                { message: "User not found" }, 
+                { message: "User not found" },
                 { status: 404 }
             );
         }
@@ -37,16 +37,19 @@ export const GET = async () => {
         return NextResponse.json(
             {
                 message: "Favorite products fetched successfully",
-                favorites: user.favorites, // This will be an array of product objects
+                favorites: user.favorites, // Array of product objects
             },
             { status: 200 }
         );
-
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching favorite products:", error);
+
+        const message =
+            error instanceof Error ? error.message : "Internal server error";
+
         return NextResponse.json(
-            { message: "Internal Server Error" },
+            { message: "Server error", error: message },
             { status: 500 }
         );
     }
-}
+};

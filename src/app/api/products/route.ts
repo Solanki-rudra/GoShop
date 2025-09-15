@@ -1,26 +1,30 @@
+// src/app/api/products/route.ts
+
 import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/Product";
-import { NextRequest, NextResponse } from "next/server"; // Import NextRequest
+import { NextRequest, NextResponse } from "next/server";
 import { ROLES } from "@/constants/constant";
 import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
+import mongoose from "mongoose";
 
-export const GET = async (request: NextRequest) => { // Accept request parameter
+export const GET = async (request: NextRequest) => {
   try {
     await connectToDatabase();
 
     // Get the search parameters from the request URL
     const searchParams = request.nextUrl.searchParams;
-    const sellerId = searchParams.get('sellerId');
-    // Create a filter object. It will be empty by default to get all products.
-    const filter: { [key: string]: any } = {};
+    const sellerId = searchParams.get("sellerId");
 
-    // If a sellerId is provided in the query, add it to the filter.
+    // Create a filter object. Empty by default
+    const filter: Record<string, unknown> = {};
+
+    // If a sellerId is provided, add it to the filter
     if (sellerId) {
-        filter.sellerId = sellerId;
+      filter.sellerId = sellerId;
     }
 
-    // Use the filter object to find products.
+    // Find products with filter
     const products = await Product.find(filter);
     console.log("Products fetched from DB:", products);
 
@@ -31,19 +35,21 @@ export const GET = async (request: NextRequest) => { // Accept request parameter
       );
     }
 
-    // 🔹 Get logged-in user to check for favorites
+    // 🔹 Get logged-in user to check favorites
     const userPayload = await getAuthenticatedUser();
     let favorites: string[] = [];
 
     if (userPayload) {
       const user = await User.findById(userPayload.id);
       if (user) {
-        favorites = user.favorites.map((fav: any) => fav.toString());
+        favorites = user.favorites.map((fav: mongoose.Types.ObjectId) =>
+          fav.toString()
+        );
       }
     }
 
     // 🔹 Add isFavorite flag to each product
-    const productsWithFavorite = products.map((product: any) => ({
+    const productsWithFavorite = products.map((product: InstanceType<typeof Product>) => ({
       ...product.toObject(),
       isFavorite: favorites.includes(product._id.toString()),
     }));
@@ -55,51 +61,65 @@ export const GET = async (request: NextRequest) => { // Accept request parameter
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.log("Getting products error : ", error);
-    return NextResponse.json(
-      { message: error.message || "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    console.log("Getting products error:", error);
+
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
+    return NextResponse.json({ message }, { status: 500 });
   }
 };
 
-
 export const POST = async (request: Request) => {
-    try {
-        await connectToDatabase();
+  try {
+    await connectToDatabase();
 
-        const userPayload = await getAuthenticatedUser([ROLES.ADMIN, ROLES.SELLER])
-        if (!userPayload) {
-            return NextResponse.json(
-                { message: "Not authorized" },
-                { status: 403 }
-            )
-        }
-
-        const { name, description, price, discount, stock, category, images, video } = await request.json();
-
-        if (!name || !description || !price || !stock || !category) {
-            return NextResponse.json(
-                { message: 'Missing required fields' },
-                { status: 400 }
-            );
-        }
-
-        const newProdcut = await Product.create({
-            name, description, price, discount, stock, category, images, video, sellerId: userPayload.id
-        })
-
-        return NextResponse.json(
-            { message: 'Product created successfully', product: newProdcut },
-            { status: 201 }
-        )
-
-    } catch (error: any) {
-        console.log('Creating product error : ', error);
-        return NextResponse.json(
-            { message: error.message || 'Internal Server Error' },
-            { status: 500 }
-        )
+    const userPayload = await getAuthenticatedUser([ROLES.ADMIN, ROLES.SELLER]);
+    if (!userPayload) {
+      return NextResponse.json({ message: "Not authorized" }, { status: 403 });
     }
-}
+
+    const {
+      name,
+      description,
+      price,
+      discount,
+      stock,
+      category,
+      images,
+      video,
+    } = await request.json();
+
+    if (!name || !description || !price || !stock || !category) {
+      return NextResponse.json(
+        { message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const newProduct = await Product.create({
+      name,
+      description,
+      price,
+      discount,
+      stock,
+      category,
+      images,
+      video,
+      sellerId: userPayload.id,
+    });
+
+    return NextResponse.json(
+      { message: "Product created successfully", product: newProduct },
+      { status: 201 }
+    );
+  } catch (error: unknown) {
+    console.log("Creating product error:", error);
+
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
+    return NextResponse.json({ message }, { status: 500 });
+  }
+};

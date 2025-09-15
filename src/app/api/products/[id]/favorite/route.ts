@@ -1,4 +1,4 @@
-// product/[id]/favorite/route.js
+// src/app/api/products/[id]/favorite/route.ts
 
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
@@ -26,7 +26,7 @@ export const POST = async (req: Request, { params }: Params) => {
 
     const productId = new mongoose.Types.ObjectId(params.id);
     const index = user.favorites.findIndex(
-      (favId: any) => favId.toString() === productId.toString()
+      (favId: mongoose.Types.ObjectId) => favId.toString() === productId.toString()
     );
 
     let isFavorite = false; // ✅ Track the new state
@@ -43,19 +43,21 @@ export const POST = async (req: Request, { params }: Params) => {
 
     await user.save();
 
-    // ✅ Key Change: Return the new favorite status directly.
-    // This is much more efficient than sending the entire favorites array.
     return NextResponse.json(
       {
         message: "Favorites updated",
-        isFavorite, // Send back the new boolean status
+        isFavorite,
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log("Favorite toggle error:", error);
+
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
     return NextResponse.json(
-      { message: "Server error", error: error.message || "Internal server error" },
+      { message: "Server error", error: message },
       { status: 500 }
     );
   }
@@ -67,4 +69,4 @@ export const GET = async () => {
     { message: "GET method not allowed" },
     { status: 405 }
   );
-}
+};

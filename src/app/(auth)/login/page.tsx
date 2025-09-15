@@ -39,8 +39,12 @@ export default function LoginPage() {
       if (res.user?.role === "admin") router.push("/admin/customers");
 
 console.log(res)
-    } catch (err: any) {
-      custNotification.error(err?.message || "Login failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        custNotification.error(err.message);
+      } else {
+        custNotification.error("Login failed");
+      }
     } finally {
       setLoading(false);
     }

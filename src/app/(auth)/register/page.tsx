@@ -43,9 +43,13 @@ export default function RegisterPage() {
       custNotification.success(res?.message || "Registered successfully");
       setUserToLocalStorage(res.user, res.user.token);
       router.push("/");
-    } catch (err: any) {
-      custNotification.error(err?.message || "Registration failed");
+    } catch (err: unknown) {
       console.error(err);
+      if (err instanceof Error) {
+        custNotification.error(err.message);
+      } else {
+        custNotification.error("Registration failed");
+      }
     } finally {
       setLoading(false);
     }
