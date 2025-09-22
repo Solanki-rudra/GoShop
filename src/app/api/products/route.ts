@@ -71,9 +71,9 @@ export const GET = async (request: NextRequest) => {
   }
 };
 
-export const POST = async (request: Request) => {
-  try {
-    await connectToDatabase();
+export const POST = async (request: NextRequest) => {
+    try {
+        await connectToDatabase();
 
     const userPayload = await getAuthenticatedUser([ROLES.ADMIN, ROLES.SELLER]);
     if (!userPayload) {

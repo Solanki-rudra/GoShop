@@ -2,9 +2,9 @@ import { connectToDatabase } from "@/lib/db";
 import { signJwt } from "@/lib/jwt";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: Request) => {
+export const POST = async (req: NextRequest) => {
     try {
         await connectToDatabase();
         const { email, password } = await req.json();

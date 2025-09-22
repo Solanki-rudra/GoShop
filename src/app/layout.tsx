@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { BRAND_DESCRIPTION, BRAND_NAME } from "@/constants/constant";
 import AntdRegistry from "@/lib/AntdRegistery";
 import { NotificationProvider } from "@/context/NotificationProvider";
-import Footer from "@/components/Footer";
 import ClientLayout from "@/components/ClientLayout"; // 👈 new wrapper
 
 export const metadata: Metadata = {

@@ -1,16 +1,12 @@
 // src/app/api/products/[id]/favorite/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
 import mongoose from "mongoose";
 
-interface Params {
-  params: { id: string };
-}
-
-export const POST = async (req: Request, { params }: Params) => {
+export const POST = async (req: NextRequest, context: { params: { id: string } }) => {
   try {
     await connectToDatabase();
 
@@ -24,7 +20,7 @@ export const POST = async (req: Request, { params }: Params) => {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const productId = new mongoose.Types.ObjectId(params.id);
+    const productId = new mongoose.Types.ObjectId(context.params.id);
     const index = user.favorites.findIndex(
       (favId: mongoose.Types.ObjectId) => favId.toString() === productId.toString()
     );
@@ -61,12 +57,4 @@ export const POST = async (req: Request, { params }: Params) => {
       { status: 500 }
     );
   }
-};
-
-export const GET = async () => {
-  console.log("GET method not allowed on this route");
-  return NextResponse.json(
-    { message: "GET method not allowed" },
-    { status: 405 }
-  );
 };

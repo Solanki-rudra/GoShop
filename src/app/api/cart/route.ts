@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/Product";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
 
@@ -47,7 +47,7 @@ console.log(user);
 // =====================
 // POST: Add item to Cart
 // =====================
-export const POST = async (request: Request) => {
+export const POST = async (request: NextRequest) => {
   try {
     await connectToDatabase();
 
@@ -125,7 +125,7 @@ export const POST = async (request: Request) => {
 // =====================
 // PATCH: Update Quantity
 // =====================
-export const PATCH = async (request: Request) => {
+export const PATCH = async (request: NextRequest) => {
   try {
     await connectToDatabase();
 
@@ -187,7 +187,7 @@ export const PATCH = async (request: Request) => {
 // =====================
 // DELETE: Remove Item
 // =====================
-export const DELETE = async (request: Request) => {
+export const DELETE = async (request: NextRequest) => {
   try {
     await connectToDatabase();
 
