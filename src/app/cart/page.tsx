@@ -12,6 +12,7 @@ import { InputNumber, Button, Input, Card, Typography } from "antd";
 import Spinner from "@/components/Spinner";
 import TextArea from "antd/es/input/TextArea";
 import StripeCheckout from "@/components/stripeCheckout";
+import CheckoutPage from "../checkout/page";
 // import PaypalCheckout from "@/components/paypalCheckout";
 
 const { Title } = Typography;
@@ -203,7 +204,7 @@ export default function CartPage() {
       >
         Checkout
       </Button> */}
-       <StripeCheckout amount={totalPrice} />
+       <CheckoutPage />
     </div>
   );
 }
