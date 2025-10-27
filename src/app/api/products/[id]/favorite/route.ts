@@ -6,7 +6,7 @@ import { getAuthenticatedUser } from "@/lib/helper";
 import User from "@/models/User";
 import mongoose from "mongoose";
 
-export const POST = async (req: NextRequest, context: { params: { id: string } }) => {
+export const POST = async (req: NextRequest, context: any) => {
   try {
     await connectToDatabase();
 

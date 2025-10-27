@@ -7,7 +7,7 @@ import Product from "@/models/Product";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (request: NextRequest, context: { params: { id: string } }) => {
+export const GET = async (request: NextRequest, context: any) => {
   try {
     await connectToDatabase();
 
@@ -48,7 +48,7 @@ export const GET = async (request: NextRequest, context: { params: { id: string 
 
 // ... (PUT and DELETE methods remain unchanged)
 
-export const PUT = async (request: NextRequest, context: { params: { id: string } }) => {
+export const PUT = async (request: NextRequest, context: any) => {
     try {
         await connectToDatabase()
 
@@ -96,7 +96,7 @@ export const PUT = async (request: NextRequest, context: { params: { id: string 
     }
 }
 
-export const DELETE = async (request: NextRequest, context: { params: { id: string } }) => {
+export const DELETE = async (request: NextRequest, context: any) => {
     try {
         await connectToDatabase()
 

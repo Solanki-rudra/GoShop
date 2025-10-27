@@ -7,6 +7,22 @@ import User from "@/models/User";
 // =====================
 // GET: Fetch Cart
 // =====================
+
+const formatCartWithFinalPrice = (cart: any[]) =>
+  cart?.map((item: any) => {
+    const price = item?.productId?.price || 0;
+    const discount = item?.productId?.discount || 0;
+
+    // ✅ Correct percentage discount
+    const finalPrice = price - discount;
+
+    return {
+      ...item._doc,
+      finalPrice,
+    };
+  });
+
+
 export const GET = async () => {
   try {
     await connectToDatabase();
@@ -21,7 +37,7 @@ export const GET = async () => {
 
     const user = await User.findById(userPayload.id).populate(
       "cart.productId",
-      "name price images" // only these fields
+      "name price discount images" // only these fields
     );
 console.log(user);
     if (!user) {
@@ -31,10 +47,16 @@ console.log(user);
       );
     }
 
+    const cartWithFinalPrice = formatCartWithFinalPrice(user.cart);
+
     return NextResponse.json(
-      { message: "Cart fetched successfully", cart: user.cart },
+      {
+        message: "Cart fetched successfully",
+        cart: cartWithFinalPrice,
+      },
       { status: 200 }
     );
+
   } catch (error: any) {
     console.log("Getting cart error : ", error);
     return NextResponse.json(
@@ -78,7 +100,7 @@ export const POST = async (request: NextRequest) => {
 
     const user = await User.findById(userPayload.id).populate(
       "cart.productId",
-      "name price images" // only these fields
+      "name price discount images" // only these fields
     );
     if (!user) {
       return NextResponse.json(
@@ -98,19 +120,22 @@ export const POST = async (request: NextRequest) => {
     }
 
     if (availableItem) {
-      user.cart = user.cart.map((item: any) =>
-        item.productId?._id.toString() === productId
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
-      );
+      user.cart.forEach((item: any) => {
+        if (item.productId?._id.toString() === productId) {
+          item.quantity += quantity;
+        }
+      });
     } else {
       user.cart.push({ productId, quantity });
     }
 
+
     await user.save();
 
+    const cartWithFinalPrice = formatCartWithFinalPrice(user.cart);
+
     return NextResponse.json(
-      { message: "Item added successfully", cart: user.cart },
+      { message: "Item added successfully", cart: cartWithFinalPrice },
       { status: 200 }
     );
   } catch (error: any) {
@@ -148,7 +173,7 @@ export const PATCH = async (request: NextRequest) => {
 
     const user = await User.findById(userPayload.id).populate(
       "cart.productId",
-      "name price images" // only these fields
+      "name price discount images" // only these fields
     );
     if (!user) {
       return NextResponse.json(
@@ -171,8 +196,10 @@ export const PATCH = async (request: NextRequest) => {
     user.cart[itemIndex].quantity = quantity;
     await user.save();
 
+    const cartWithFinalPrice = formatCartWithFinalPrice(user.cart);
+
     return NextResponse.json(
-      { message: "Quantity updated successfully", cart: user.cart },
+      { message: "Quantity updated successfully", cart: cartWithFinalPrice },
       { status: 200 }
     );
   } catch (error: any) {
@@ -210,7 +237,7 @@ export const DELETE = async (request: NextRequest) => {
 
     const user = await User.findById(userPayload.id).populate(
       "cart.productId",
-      "name price images" // only these fields
+      "name price discount images" // only these fields
     );
     if (!user) {
       return NextResponse.json(
@@ -219,14 +246,20 @@ export const DELETE = async (request: NextRequest) => {
       );
     }
 
-    user.cart = user.cart.filter(
+    const updatedCart = user.cart.filter(
       (item: any) => item.productId._id.toString() !== productId
     );
-console.log(user.cart)
+
+    // ✅ Assign correctly without breaking `DocumentArray` type
+    user.cart.splice(0, user.cart.length, ...updatedCart);
+
+    user.markModified("cart");
     await user.save();
 
+    const cartWithFinalPrice = formatCartWithFinalPrice(user.cart);
+
     return NextResponse.json(
-      { message: "Item removed successfully", cart: user.cart },
+      { message: "Item removed successfully", cart: cartWithFinalPrice },
       { status: 200 }
     );
   } catch (error: any) {

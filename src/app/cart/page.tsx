@@ -83,7 +83,7 @@ export default function CartPage() {
   // Calculate Total
   // ======================
   const totalPrice = cart.reduce((acc, item: any) => {
-    const price = item.productId?.price || 0;
+    const price = item?.finalPrice || 0;
     return acc + price * (item.quantity || 0);
   }, 0);
 
@@ -163,8 +163,8 @@ export default function CartPage() {
               <div>
                 <Title level={5}>{item.productId.name}</Title>
                 <p>
-                  ₹{item.productId.price} × {item.quantity} ={" "}
-                  <strong>₹{item.productId.price * item.quantity}</strong>
+                  ₹{item?.finalPrice} × {item.quantity} ={" "}
+                  <strong>₹{item?.finalPrice * item?.quantity}</strong>
                 </p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function CartPage() {
       <div className="mt-8 flex justify-between items-center border-t pt-4">
         <Title level={4}>Total:</Title>
         <Title level={3} className="text-blue-600">
-          ${totalPrice}
+          ₹{totalPrice}
         </Title>
       </div>
 
