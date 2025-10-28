@@ -117,6 +117,11 @@ export default function FavoritesPage() {
                   >
                     {isLoading ? "Adding..." : "Add to Cart"}
                   </button>
+                <Button
+                  onClick={() => handleToggleFavorite(product._id)}
+                >
+                  ❤️
+                </Button>
                 </div>
               </div>
             );

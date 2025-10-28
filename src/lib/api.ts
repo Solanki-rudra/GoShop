@@ -213,3 +213,49 @@ export const getFavorites = async () => {
   }
   return data;
 };
+
+export const payment = async (amount: number, orderId: string, paymentMode: string, currency='INR', customerId = 'user_id_1', customerEmail='user@example.com', customerPhone='9999999999', customerName='user1') => {
+  const res = await fetch("/api/payment", {
+    method: "POST",
+    body: JSON.stringify({
+      orderId,
+      amount,
+      paymentMode,
+      currency,
+      customerId,
+      customerEmail,
+      customerPhone,
+      customerName
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || "Payment failed");
+  }
+  return data;
+};
+
+export const createOrder = async (cart: any, shippingAddress: string) => {
+  const res = await fetch("/api/orders", {
+    method: "POST",
+    body: JSON.stringify({
+      cart,
+      shippingAddress
+    })
+  })
+  const data = await res.json()
+  if (!res.ok) {
+    throw new Error(data?.message || "Failed creating order")
+  }
+  return data
+}
+
+export const checkPaymentStatus = async (orderId: string) => {
+  const res = await fetch(`/api/payment?order_id=${orderId}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message || "Failed creating order")
+  }
+  return data
+};

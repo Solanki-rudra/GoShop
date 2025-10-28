@@ -152,7 +152,7 @@ export default function CartPage() {
         {cart.map((item: any) => (
           <Card
             key={item.productId._id}
-            className="flex items-center justify-between shadow-sm rounded-2xl p-4"
+            className="flex items-center justify-between shadow-sm rounded-2xl p-4 m-2"
           >
             <div className="flex items-center gap-4">
               <img
@@ -204,7 +204,7 @@ export default function CartPage() {
       >
         Checkout
       </Button> */}
-       <CheckoutPage />
+       <CheckoutPage cart={cart} />
     </div>
   );
 }
