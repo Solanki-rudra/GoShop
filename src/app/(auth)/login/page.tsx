@@ -54,7 +54,6 @@ console.log(res)
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
       <Card
         className="w-full max-w-md shadow-lg rounded-2xl border border-gray-100"
-        bodyStyle={{ padding: "2rem" }}
       >
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
           {/* Header */}

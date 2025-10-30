@@ -1,5 +1,5 @@
 export const USER_ROLES = [
-    "customer",
+    "buyer",
     "seller",
     "admin"
 ];
@@ -17,9 +17,11 @@ export const PRODUCT_CATEGORIES = [
 ];
 
 export const ORDER_STATUSES = [
-    "pending",
+    "preparing",
     "shipped",
     "delivered",
-    "canceled",
+    "cancelled",
     "returned",
+    "failed",
+    "pending"
 ];

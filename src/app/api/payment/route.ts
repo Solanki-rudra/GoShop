@@ -1,3 +1,5 @@
+import Order from "@/models/Order";
+import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 const CASHFREE_SANDBOX_API = "https://sandbox.cashfree.com/pg/orders";
@@ -28,7 +30,7 @@ export const POST = async (req: NextRequest) => {
         // Redirect after payment
         order_meta: {
           return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/status?order_id={order_id}`,
-// notify_url: 
+          // notify_url: 
         },
       }),
     });
@@ -67,6 +69,37 @@ export const GET = async (req: NextRequest) => {
     });
 
     const data = await res.json();
+
+    if (!res.ok || !data || !data[0]) {
+      return NextResponse.json(
+        { message: data?.message || "Failed to retrieve payment info" },
+        { status: 400 }
+      );
+    }
+
+    const payment = data[0];
+    console.log("💳 Payment Response:", payment);
+
+    // 🔹 Find order by its ID (Cashfree order_id == Mongo _id)
+    const order = await Order.findById(payment?.order_id);
+    if (!order) {
+      return NextResponse.json({ message: "Order not found" }, { status: 404 });
+    }
+
+    // 🔹 Update order status
+    order.status = payment?.payment_status === "SUCCESS" ? "preparing" : "failed";
+    order.paymentId = payment?.cf_payment_id?.toString() || order.paymentId;
+    await order.save();
+
+    // 🔹 If success, clear user's cart
+    if (payment?.payment_status === "SUCCESS") {
+      const customer = await User.findById(order.userId);
+      if (customer) {
+        // Instead of reassigning, modify the existing array
+        customer.cart.splice(0, customer.cart.length);
+        await customer.save();
+      }
+    }
 
     if (!res.ok) {
       return NextResponse.json({ message: data.message || "Failed to retrieve order status" }, { status: 400 });

@@ -259,3 +259,14 @@ export const checkPaymentStatus = async (orderId: string) => {
   }
   return data
 };
+
+export const getOrders = async () => {
+  const res = await fetch(`${BASE_URL}/api/orders`, {
+    method: "GET",
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || "Failed fetching orders")
+  }
+  return data;
+};

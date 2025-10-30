@@ -14,8 +14,8 @@ export const POST = async (req: NextRequest) => {
   }
 
   // Calculate total amount
-  const totalAmount = cart.reduce(
-    (sum: number, item: any) => sum + item.finalPrice * item.quantity,
+  const totalAmount = cart?.reduce(
+    (sum: number, item: any) => sum + item?.finalPrice * item?.quantity,
     0
   );
 
@@ -45,4 +45,34 @@ export const POST = async (req: NextRequest) => {
     totalAmount,
     paymentId,
   });
+};
+
+export const GET = async (req: NextRequest) => {
+  try {
+    await connectToDatabase();
+
+    // Authenticate the user
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user is admin
+    // const isAdmin = user.role === "admin";
+
+    const orders = await Order.find({ userId: user.id }).sort({
+      createdAt: -1,
+    });
+
+    return NextResponse.json({
+      message: "Orders fetched successfully",
+      orders: orders || [],
+    });
+  } catch (error: any) {
+    console.error("Error fetching orders:", error);
+    return NextResponse.json(
+      { message: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 };

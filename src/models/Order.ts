@@ -29,18 +29,6 @@ const orderSchema = new mongoose.Schema(
         ],
         shippingAddress: {
             type: String,
-            line1: {
-                type: String,
-                required: true
-            },
-            city: {
-                type: String,
-                required: true
-            },
-            zip: {
-                type: String,
-                required: true
-            }
         },
         paymentId: {
             type: String,

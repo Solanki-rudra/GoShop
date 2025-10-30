@@ -13,8 +13,8 @@ export default function CheckoutPage({ cart }: any) {
 
   const user = getUserFromLocalStorage();
 
-  const totalAmount = cart.reduce(
-    (sum: number, item: any) => sum + item.finalPrice * item.quantity,
+  const totalAmount = cart?.reduce(
+    (sum: number, item: any) => sum + item?.finalPrice * item?.quantity,
     0
   );
 

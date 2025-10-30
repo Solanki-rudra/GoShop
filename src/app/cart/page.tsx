@@ -82,9 +82,9 @@ export default function CartPage() {
   // ======================
   // Calculate Total
   // ======================
-  const totalPrice = cart.reduce((acc, item: any) => {
+  const totalPrice = cart?.reduce((acc, item: any) => {
     const price = item?.finalPrice || 0;
-    return acc + price * (item.quantity || 0);
+    return acc + price * (item?.quantity || 0);
   }, 0);
 
   // ======================
