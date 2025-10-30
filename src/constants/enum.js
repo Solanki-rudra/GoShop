@@ -1,5 +1,5 @@
 export const USER_ROLES = [
-    "buyer",
+    "customer",
     "seller",
     "admin"
 ];

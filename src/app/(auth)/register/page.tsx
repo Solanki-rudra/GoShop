@@ -75,7 +75,7 @@ export default function RegisterPage() {
             layout="vertical"
             onFinish={onFinish}
             requiredMark={false}
-            initialValues={{ role: "buyer" }} // default role
+            initialValues={{ role: "customer" }} // default role
           >
             {/* Name */}
             <Form.Item
@@ -126,7 +126,7 @@ export default function RegisterPage() {
                 className="w-full flex justify-between"
               >
                 <Radio.Button
-                  value="buyer"
+                  value="customer"
                   className="flex-1 text-center py-4 px-2"
                 >
                   <div className="font-semibold mb-2">Shopping</div>
